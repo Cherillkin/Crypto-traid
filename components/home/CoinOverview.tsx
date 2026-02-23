@@ -6,7 +6,7 @@ import CandlestickChart from "../ui/CandlestickChart";
 const CoinOverview = async () => {
   try {
     const [coin, coinOHCLData] = await Promise.all([
-      await fetcher<CoinDetailsData>("/coins/bitcoin", {
+      fetcher<CoinDetailsData>("/coins/bitcoin", {
         dex_pair_forma: "symbol",
       }),
       fetcher<OHLCData[]>("/coins/bitcoin/ohlc", {

@@ -28,7 +28,6 @@ const CandlestickChart = ({
   const chartRef = useRef<IChartApi | null>(null);
   const candleSeriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
 
-  const [loading, setLoading] = useState(false);
   const [period, setPeriod] = useState(initialPeriod);
   const [ohlcData, setOhclData] = useState<OHLCData[]>(data ?? []);
   const [isPending, startTransition] = useTransition();
@@ -70,7 +69,17 @@ const CandlestickChart = ({
     });
     const series = chart.addSeries(CandlestickSeries, getCandlestickConfig());
 
-    series.setData(convertOHLCData(ohlcData));
+    const convertedToSeconds = ohlcData.map(
+      (item) =>
+        [
+          Math.floor(item[0] / 1000),
+          item[1],
+          item[2],
+          item[3],
+          item[4],
+        ] as OHLCData,
+    );
+    series.setData(convertOHLCData(convertedToSeconds));
     chart.timeScale().fitContent();
 
     chartRef.current = chart;
@@ -88,7 +97,7 @@ const CandlestickChart = ({
       chartRef.current = null;
       candleSeriesRef.current = null;
     };
-  }, [height]);
+  }, [height, period]);
 
   useEffect(() => {
     if (!candleSeriesRef.current) return;
@@ -125,7 +134,7 @@ const CandlestickChart = ({
                 period === value ? "config-button-active" : "config-button"
               }
               onClick={() => handlePeriodChange(value)}
-              disabled={loading}
+              disabled={isPending}
             >
               {label}
             </button>
@@ -134,7 +143,7 @@ const CandlestickChart = ({
             key="1h"
             className="config-button"
             onClick={() => {}}
-            disabled={loading}
+            disabled={isPending}
           ></button>
         </div>
       </div>
